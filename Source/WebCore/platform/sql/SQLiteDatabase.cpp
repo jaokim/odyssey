@@ -38,6 +38,8 @@
 #include <wtf/text/CString.h>
 #include <wtf/text/WTFString.h>
 
+#include <unistd.h>
+
 namespace WebCore {
 
 static const char notOpenErrorMessage[] = "database is not open";
@@ -165,7 +167,31 @@ void SQLiteDatabase::overrideUnauthorizedFunctions()
         sqlite3_create_function(m_db, functionParameter.first, functionParameter.second, SQLITE_UTF8, const_cast<char*>(functionParameter.first), unauthorizedSQLFunction, 0, 0);
 }
 
-void SQLiteDatabase::setFullsync(bool fsync)
+void SQLiteDatabase::interrupt()
+{
+    m_interrupted = true;
+    while (!m_lockingMutex.tryLock()) {
+        MutexLocker locker(m_databaseClosingMutex);
+        if (!m_db)
+            return;
+        sqlite3_interrupt(m_db);
+#if PLATFORM(MUI)
+        usleep(10);
+#else
+        std::this_thread::yield();
+#endif
+    }
+
+    m_lockingMutex.unlock();
+}
+
+bool SQLiteDatabase::isInterrupted()
+{
+    ASSERT(!m_lockingMutex.tryLock());
+    return m_interrupted;
+}
+
+void SQLiteDatabase::setFullsync(bool fsync) 
 {
     if (fsync) 
         executeCommand(ASCIILiteral("PRAGMA fullfsync = 1;"));

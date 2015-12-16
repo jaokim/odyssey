@@ -39,6 +39,8 @@ OBJC_CLASS NSMenuItem;
 #elif PLATFORM(GTK)
 typedef struct _GtkMenuItem GtkMenuItem;
 typedef struct _GtkAction GtkAction;
+#elif PLATFORM(MUI)
+#include "BALBase.h"
 #endif
 #endif // ENABLE(CONTEXT_MENUS)
 
@@ -182,6 +184,23 @@ namespace WebCore {
     typedef NSMenuItem* PlatformMenuItemDescription;
 #elif PLATFORM(GTK)
     typedef GtkMenuItem* PlatformMenuItemDescription;
+#elif PLATFORM(MUI)
+    struct PlatformMenuItemDescription {
+        PlatformMenuItemDescription()
+            : type(ActionType)
+            , action(ContextMenuItemTagNoAction)
+            , subMenu(0)
+            , checked(false)
+            , enabled(true)
+        {}
+
+        ContextMenuItemType type;
+        ContextMenuAction action;
+        String title;
+        BalMenu* subMenu;
+        bool checked;
+        bool enabled;
+    };
 #else
     typedef void* PlatformMenuItemDescription;
 #endif
@@ -191,7 +210,9 @@ namespace WebCore {
     public:
         WEBCORE_EXPORT ContextMenuItem(ContextMenuItemType, ContextMenuAction, const String&, ContextMenu* subMenu = 0);
         WEBCORE_EXPORT ContextMenuItem(ContextMenuItemType, ContextMenuAction, const String&, bool enabled, bool checked);
-
+#if PLATFORM(MUI)
+        WEBCORE_EXPORT ContextMenuItem(BalMenuItem*);
+#endif
         WEBCORE_EXPORT ~ContextMenuItem();
 
         void setType(ContextMenuItemType);
@@ -216,6 +237,10 @@ namespace WebCore {
         GtkAction* gtkAction() const;
 #endif
 
+#if PLATFORM(MUI)
+        static BalMenuItem* createNativeMenuItem(const PlatformMenuItemDescription&);
+#endif
+
 #if USE(CROSS_PLATFORM_CONTEXT_MENUS)
         ContextMenuItem(ContextMenuAction, const String&, bool enabled, bool checked, const Vector<ContextMenuItem>& subMenuItems);
         explicit ContextMenuItem(const PlatformContextMenuItem&);
@@ -238,9 +263,13 @@ namespace WebCore {
         ContextMenuItem(ContextMenuAction, const String&, bool enabled, bool checked, Vector<ContextMenuItem>& submenuItems);
         WEBCORE_EXPORT ContextMenuItem();
 
+#if PLATFORM(MUI)
+        bool isNull() const { return m_platformDescription.action == ContextMenuItemTagNoAction; }
+#else
         bool isNull() const { return !m_platformDescription; }
+#endif
 
-#if PLATFORM(GTK)
+#if PLATFORM(GTK) || PLATFORM(MUI)
         WEBCORE_EXPORT PlatformMenuItemDescription releasePlatformDescription();
 #endif
 
