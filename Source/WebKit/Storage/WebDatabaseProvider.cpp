@@ -23,9 +23,13 @@
  * THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "config.h"
+
 #include "WebDatabaseProvider.h"
 
+#if ENABLE(INDEXED_DATABASE)
 #include <WebCore/IDBFactoryBackendInterface.h>
+#endif
 #include <WebCore/SessionID.h>
 #include <wtf/NeverDestroyed.h>
 
