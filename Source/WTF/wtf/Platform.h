@@ -432,6 +432,11 @@
 #define WTF_OS_MORPHOS 1
 #endif
 
+#if defined(__AMIGAOS4__)
+#define WTF_OS_AMIGAOS4 1
+#endif
+
+
 /* Operating environments */
 
 /* FIXME: these are all mixes of OS, operating environment and policy choices. */
@@ -454,7 +459,7 @@
 #endif
 #elif OS(WINDOWS)
 #define WTF_PLATFORM_WIN 1
-#elif OS(AROS)
+#elif OS(AROS) || OS(AMIGAOS4)
 #define WTF_PLATFORM_MUI 1
 #endif
 
@@ -639,7 +644,7 @@
 #define HAVE_STAT_BIRTHTIME 1
 #endif
 
-#if !OS(WINDOWS) && !OS(SOLARIS) && !OS(AROS) && !OS(MORPHOS)
+#if !OS(WINDOWS) && !OS(SOLARIS) && !OS(AROS) && !OS(MORPHOS) && !OS(AMIGAOS4)
 #define HAVE_TM_GMTOFF 1
 #define HAVE_TM_ZONE 1
 #define HAVE_TIMEGM 1
@@ -683,7 +688,7 @@
 /* Include feature macros */
 #include <wtf/FeatureDefines.h>
 
-#if OS(WINDOWS) || OS(AROS) || OS(MORPHOS)
+#if OS(WINDOWS) || OS(AROS) || OS(MORPHOS) || OS(AMIGAOS4)
 #define USE_SYSTEM_MALLOC 1
 #endif
 
