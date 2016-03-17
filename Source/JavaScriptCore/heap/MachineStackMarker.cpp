@@ -33,7 +33,6 @@
 
 #if PLATFORM(MUI)
 #include <proto/exec.h>
-#include <proto/dos.h>
 #include <clib/debug_protos.h>
 #define D(x)
 #endif

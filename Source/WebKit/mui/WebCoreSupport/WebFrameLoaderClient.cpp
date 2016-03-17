@@ -85,6 +85,7 @@
 #include <ResourceLoader.h> 
 #include <ScriptController.h>
 #include <Settings.h>
+#include <SubresourceLoader.h>
 #include <APICast.h>
 
 #include "AutofillManager.h"

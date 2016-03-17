@@ -45,28 +45,13 @@
 #include <wtf/Noncopyable.h>
 #include <wtf/StdLibExtras.h>
 
-#if USE(PTHREADS)
+#if USE(PTHREADS) || PLATFORM(MUI)
 #include <pthread.h>
 #elif OS(WINDOWS)
 #include <windows.h>
 #endif
 
-#if PLATFORM(MUI)
-#include <exec/nodes.h>
-#endif
-
 namespace WTF {
-
-#if PLATFORM(MUI)
-//struct ThreadSpecificNode;
-struct ThreadSpecificNode
-{
-	struct MinNode n;
-	void (*destructor)(void *);
-	void *value;
-};
-typedef struct ThreadSpecificNode *ThreadSpecificKey;
-#endif
 
 #if OS(WINDOWS)
 // ThreadSpecificThreadExit should be called each time when a thread is detached.
@@ -114,16 +99,14 @@ public:
 #endif
     };
 
-#if USE(PTHREADS)
+#if USE(PTHREADS) || PLATFORM(MUI)
     pthread_key_t m_key;
 #elif OS(WINDOWS)
     int m_index;
-#elif PLATFORM(MUI)
-	ThreadSpecificKey m_key;
 #endif
 };
 
-#if USE(PTHREADS)
+#if USE(PTHREADS) || PLATFORM(MUI)
 
 typedef pthread_key_t ThreadSpecificKey;
 
@@ -228,41 +211,6 @@ inline void ThreadSpecific<T>::set(T* ptr)
     TlsSetValue(tlsKeys()[m_index], data);
 }
 
-#elif PLATFORM(MUI)
-
-void threadSpecificKeyCreate(ThreadSpecificKey*, void (*)(void *));
-void threadSpecificKeyDelete(ThreadSpecificKey);
-void threadSpecificSet(ThreadSpecificKey, void*);
-void* threadSpecificGet(ThreadSpecificKey);
-
-template<typename T>
-inline ThreadSpecific<T>::ThreadSpecific()
-{
-	threadSpecificKeyCreate(&m_key, 0);
-}
-
-template<typename T>
-inline ThreadSpecific<T>::~ThreadSpecific()
-{
-	threadSpecificKeyDelete(m_key);
-}
-
-template<typename T>
-inline T* ThreadSpecific<T>::get()
-{
-	Data* data = static_cast<Data*>(threadSpecificGet(m_key));
-    return data ? data->value : 0;
-}
-
-template<typename T>
-inline void ThreadSpecific<T>::set(T* ptr)
-{
-    ASSERT(!get());
-    Data* data = new Data(ptr, this);
-	threadSpecificSet(m_key, (void *) data);
-	m_key->destructor = &ThreadSpecific<T>::destroy;
-}
-
 #else
 #error ThreadSpecific is not implemented for this platform.
 #endif
@@ -272,7 +220,7 @@ inline void ThreadSpecific<T>::destroy(void* ptr)
 {
     Data* data = static_cast<Data*>(ptr);
 
-#if USE(PTHREADS)
+#if USE(PTHREADS) || PLATFORM(MUI)
     // We want get() to keep working while data destructor works, because it can be called indirectly by the destructor.
     // Some pthreads implementations zero out the pointer before calling destroy(), so we temporarily reset it.
     pthread_setspecific(data->owner->m_key, ptr);
@@ -281,12 +229,10 @@ inline void ThreadSpecific<T>::destroy(void* ptr)
     data->value->~T();
     fastFree(data->value);
 
-#if USE(PTHREADS)
+#if USE(PTHREADS) || PLATFORM(MUI)
     pthread_setspecific(data->owner->m_key, 0);
 #elif OS(WINDOWS)
     TlsSetValue(tlsKeys()[data->owner->m_index], 0);
-#elif PLATFORM(MUI)
-	data->owner->m_key = 0;
 #else
 #error ThreadSpecific is not implemented for this platform.
 #endif

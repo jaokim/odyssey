@@ -80,6 +80,8 @@ namespace WebCore {
         virtual void didFail(NetscapePlugInStreamLoader*, const ResourceError&);
         virtual void didFinishLoading(NetscapePlugInStreamLoader*);
         virtual bool wantsAllStreams() const;
+        virtual void willSendRequest(NetscapePlugInStreamLoader*, ResourceRequest&&,
+                const ResourceResponse& redirectResponse, std::function<void (ResourceRequest&&)>&&);
 
     private:
         PluginStream(PluginStreamClient*, Frame*, const ResourceRequest&, bool sendNotification, void* notifyData, const NPPluginFuncs*, NPP instance, const PluginQuirkSet&);

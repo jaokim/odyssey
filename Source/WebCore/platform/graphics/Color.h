@@ -280,7 +280,7 @@ inline uint8_t roundAndClampColorChannel(int value)
 
 inline uint8_t roundAndClampColorChannel(float value)
 {
-    return std::max(0.f, std::min(255.f, std::round(value)));
+    return std::max(0.f, std::min(255.f, roundf(value)));
 }
 
 inline uint16_t fastDivideBy255(uint16_t value)

@@ -680,7 +680,7 @@ NPObject* PluginView::npObject()
 }
 #endif
 
-PassRefPtr<JSC::Bindings::Instance> PluginView::bindingInstance()
+RefPtr<JSC::Bindings::Instance> PluginView::bindingInstance()
 {
 #if ENABLE(NETSCAPE_PLUGIN_API)
     NPObject* object = npObject();

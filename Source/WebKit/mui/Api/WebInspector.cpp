@@ -80,9 +80,8 @@ void WebInspector::showConsole()
 
 void WebInspector::close()
 {
-    if (m_webView)
-        if (Page* page = m_webView->page())
-            page->inspectorController().close();
+    if (frontendClient())
+        frontendClient()->closeWindow();
 }
 
 void WebInspector::attach()

@@ -66,23 +66,11 @@ struct ThreadStartMsg
 	void*  			tsm_Result;
 };
 
-struct ThreadSpecificData
-{
-	void *tsd_Value;
-	void (*tsd_DestroyFunc)(void *); // Called at thread end with td_Value if not NULL
-};
-
 struct ThreadData
 {
 	struct Process* td_Thread;
 	struct MsgPort* td_MsgPort;
 	bool            td_Detached;
-
-	// MachineThread specific data
-	void *td_SpecificData;
-	void (*td_SpecificDestroyFunc)(void *); // Called at thread end with td_SpecificData
-
-	// ThreadSpecificData td_specific[64];
 };
 
 struct ThreadReplyState
@@ -177,7 +165,6 @@ void initializeThreading()
 
 		wtfThreadData();
 		initializeRandomNumberGenerator();
-		s_dtoaP5Mutex = new Mutex;
 		initializeDates();
 
 		mainThreadIdentifier = currentThread();
@@ -217,23 +204,6 @@ static ThreadReplyStateMap& threadReplyStateMap()
 }
 
 /* Thread identifier management */
-
-// Not used
-/*
-static ThreadIdentifier identifierByThreadHandle(APTR threadHandle)
-{
-    MutexLocker locker(threadMapMutex());
-
-    ThreadMap::iterator i = threadMap().begin();
-	for (; i != threadMap().end(); ++i)
-	{
-		if (i->value == threadHandle)
-            return i->key;
-    }
-
-    return 0;
-}
-*/
 
 static ThreadIdentifier identifierByThread(APTR process)
 {
@@ -455,9 +425,6 @@ ThreadIdentifier createThreadInternal(ThreadFunction entryPoint, void* data, con
 
 		threadHandle->td_Detached = false;
 		threadHandle->td_MsgPort  = port;
-		threadHandle->td_SpecificData = NULL;
-		threadHandle->td_SpecificDestroyFunc = NULL;
-
 		if (threadHandle->td_MsgPort)
 		{
 			struct ThreadStartMsg* startup_msg = (struct ThreadStartMsg*) malloc(sizeof(*startup_msg));
@@ -717,8 +684,6 @@ ThreadIdentifier currentThread()
 	{
 		threadHandle->td_Thread = (struct Process *) currentThread;
 		threadHandle->td_MsgPort = NULL; /* hm, should only happen for main thread, hopefully */
-		threadHandle->td_SpecificData = NULL;
-		threadHandle->td_SpecificDestroyFunc = NULL;
 
 		return establishIdentifierForThreadHandle(threadHandle);
 	}
@@ -730,56 +695,6 @@ bool isMainThread()
 	D(kprintf("isMainThread() %d\n", currentThread() == mainThreadIdentifier));
 	return currentThread() == mainThreadIdentifier;
 }
-
-/* Thread Specific hack */
-
-void threadSetSpecific(void* process, void* value, void(*destroyFunc)(void*))
-{
-	if (ThreadIdentifier id = identifierByThread(process))
-	{
-		struct ThreadData *threadHandle = (struct ThreadData *) threadHandleForIdentifier(id);
-
-		if (threadHandle)
-		{
-			threadHandle->td_SpecificData = value;
-			threadHandle->td_SpecificDestroyFunc = destroyFunc;
-		}
-	}
-}
-
-void *threadGetSpecific(void *process)
-{
-	void *value = NULL;
-
-	if (ThreadIdentifier id = identifierByThread(process))
-	{
-		struct ThreadData *threadHandle = (struct ThreadData *) threadHandleForIdentifier(id);
-
-		if (threadHandle)
-		{
-			value = threadHandle->td_SpecificData;
-		}
-	}
-
-	return value;
-}
-
-void threadDestroySpecific()
-{
-	if (ThreadIdentifier id = identifierByThread(FindTask(NULL)))
-	{
-		struct ThreadData *threadHandle = (struct ThreadData *) threadHandleForIdentifier(id);
-
-		if (threadHandle)
-		{
-			if(threadHandle->td_SpecificData && threadHandle->td_SpecificDestroyFunc)
-			{
-				threadHandle->td_SpecificDestroyFunc(threadHandle->td_SpecificData);
-			}
-		}
-	}
-}
-
 
 /* Mutex primitives */
 

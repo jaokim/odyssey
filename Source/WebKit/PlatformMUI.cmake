@@ -1,3 +1,11 @@
+add_custom_command(
+    OUTPUT ${DERIVED_SOURCES_WEBKIT_DIR}/WebKitVersion.h
+    MAIN_DEPENDENCY ${WEBKIT_DIR}/scripts/generate-webkitversion.pl
+    DEPENDS ${WEBKIT_DIR}/mac/Configurations/Version.xcconfig
+    COMMAND ${PERL_EXECUTABLE} ${WEBKIT_DIR}/scripts/generate-webkitversion.pl --config ${WEBKIT_DIR}/mac/Configurations/Version.xcconfig --outputDir ${DERIVED_SOURCES_WEBKIT_DIR}
+    VERBATIM)
+list(APPEND WebKit_SOURCES ${DERIVED_SOURCES_WEBKIT_DIR}/WebKitVersion.h)
+
 list(APPEND WebKit_INCLUDE_DIRECTORIES
     "${CMAKE_SOURCE_DIR}/Source"
     "${JAVASCRIPTCORE_DIR}/ForwardingHeaders"
@@ -58,6 +66,7 @@ list(APPEND WebKit_INCLUDE_DIRECTORIES
     "${WTF_DIR}"
     "${DERIVED_SOURCES_JAVASCRIPTCORE_DIR}"
     "${DERIVED_SOURCES_WEBCORE_DIR}"
+    "${DERIVED_SOURCES_WEBKIT_DIR}"
     "${DERIVED_SOURCES_DIR}/ForwardingHeaders"
     "${CMAKE_BINARY_DIR}"
     mui

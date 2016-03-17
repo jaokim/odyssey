@@ -40,34 +40,20 @@
 
 namespace WTF {
 
+#if PLATFORM(MUI)
 static long long g_functionid = 0;
 
-struct FunctionWithContext {
-    MainThreadFunction* function;
-    void* context;
-	long long id;
+struct Invocation {
+    std::function<void ()> function;
+    long long id;
 
-    FunctionWithContext(MainThreadFunction* function = nullptr, void* context = nullptr)
+    Invocation(std::function<void ()> function = nullptr)
         : function(function)
-        , context(context)
-		, id(++g_functionid)
-    { 
-    }
-    bool operator == (const FunctionWithContext& o)
+        , id(++g_functionid)
     {
-        return function == o.function && context == o.context;
     }
 };
-
-class FunctionWithContextFinder {
-public:
-    FunctionWithContextFinder(const FunctionWithContext& m) : m(m) {}
-    bool operator() (FunctionWithContext& o) { return o == m; }
-    FunctionWithContext m;
-};
-
-
-typedef Deque<FunctionWithContext> FunctionQueue;
+#endif
 
 static bool callbacksPaused; // This global variable is only accessed from main thread.
 #if (!OS(DARWIN) && !PLATFORM(MUI)) || PLATFORM(EFL) || PLATFORM(GTK)
@@ -76,11 +62,20 @@ static ThreadIdentifier mainThreadIdentifier;
 
 static StaticLock mainThreadFunctionQueueMutex;
 
+#if !PLATFORM(MUI)
 static Deque<std::function<void ()>>& functionQueue()
 {
     static NeverDestroyed<Deque<std::function<void ()>>> functionQueue;
     return functionQueue;
 }
+#else
+static Deque<Invocation>& invocationQueue()
+{
+    static NeverDestroyed<Deque<Invocation>> invocationQueue;
+    return invocationQueue;
+}
+#endif
+
 
 #if !OS(DARWIN) || PLATFORM(EFL) || PLATFORM(GTK)
 
@@ -156,10 +151,17 @@ void dispatchFunctionsFromMainThread()
     while (true) {
         {
             std::lock_guard<StaticLock> lock(mainThreadFunctionQueueMutex);
+#if !PLATFORM(MUI)
             if (!functionQueue().size())
                 break;
 
             function = functionQueue().takeFirst();
+#else
+            if (!invocationQueue().size())
+                break;
+
+            function = invocationQueue().takeFirst().function;
+#endif
         }
 
         function();
@@ -183,82 +185,63 @@ void callOnMainThread(std::function<void ()> function)
 
     {
         std::lock_guard<StaticLock> lock(mainThreadFunctionQueueMutex);
+#if !PLATFORM(MUI)
         needToSchedule = functionQueue().size() == 0;
         functionQueue().append(WTF::move(function));
+#else
+        needToSchedule = invocationQueue().size() == 0;
+        invocationQueue().append(WTF::move(function));
+#endif
     }
 
     if (needToSchedule)
         scheduleDispatchFunctionsOnMainThread();
 }
 
-long long callOnMainThreadFab(MainThreadFunction* function, void* context)
+#if PLATFORM(MUI)
+long long callOnMainThreadReturningJobID(std::function<void ()> function)
 {
     ASSERT(function);
-	long long id;
+    long long id;
+
     bool needToSchedule = false;
+
     {
-        std::lock_guard<std::mutex> lock(mainThreadFunctionQueueMutex());
-        needToSchedule = functionQueue().size() == 0;
-		FunctionWithContext invocation(function, context);
-		id = invocation.id;
-		functionQueue().append(invocation);
+        std::lock_guard<StaticLock> lock(mainThreadFunctionQueueMutex);
+        needToSchedule = invocationQueue().size() == 0;
+        Invocation invocation(WTF::move(function));
+        id = invocation.id;
+        invocationQueue().append(invocation);
     }
+
     if (needToSchedule)
         scheduleDispatchFunctionsOnMainThread();
 
-	return id;
+    return id;
 }
 
-void removeFromMainThreadFab(long long id)
+void removeFromMainThreadByJobID(long long id)
 {
     bool needToSchedule = false;
     {
-        std::lock_guard<std::mutex> lock(mainThreadFunctionQueueMutex());
+        std::lock_guard<StaticLock> lock(mainThreadFunctionQueueMutex);
 
-		Deque<FunctionWithContext>::const_iterator end = functionQueue().end();
-		for (Deque<FunctionWithContext>::const_iterator it = functionQueue().begin(); it != end; ++it)
-		{
-			if(it->id == id)
-			{
-				functionQueue().remove(it);
-				break;
-			}
-		}
+        Deque<Invocation>::const_iterator end = invocationQueue().end();
+        for (Deque<Invocation>::const_iterator it = invocationQueue().begin(); it != end; ++it)
+        {
+            if(it->id == id)
+            {
+                invocationQueue().remove(it);
+                break;
+            }
+        }
 
-        needToSchedule = functionQueue().size() == 0;
+        needToSchedule = invocationQueue().size() == 0;
     }
     if (needToSchedule)
         scheduleDispatchFunctionsOnMainThread();
 }
-
-void cancelCallOnMainThread(MainThreadFunction* function, void* context)
-{
-    ASSERT(function);
-
-    std::lock_guard<std::mutex> lock(mainThreadFunctionQueueMutex());
-
-    FunctionWithContextFinder pred(FunctionWithContext(function, context));
-
-    while (true) {
-        // We must redefine 'i' each pass, because the itererator's operator= 
-        // requires 'this' to be valid, and remove() invalidates all iterators
-        FunctionQueue::iterator i(functionQueue().findIf(pred));
-        if (i == functionQueue().end())
-            break;
-        functionQueue().remove(i);
-    }
-}
-
-static void callFunctionObject(void* context)
-{
-    auto function = std::unique_ptr<std::function<void ()>>(static_cast<std::function<void ()>*>(context));
-    (*function)();
-}
-
-void callOnMainThread(std::function<void ()> function)
-{
-    callOnMainThread(callFunctionObject, std::make_unique<std::function<void ()>>(WTF::move(function)).release());
-}
+#endif
 
 
 void setMainThreadCallbacksPaused(bool paused)

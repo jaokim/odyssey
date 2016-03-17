@@ -29,8 +29,6 @@
 #include "config.h"
 #include "WebFrame.h"
 
-//#include "BalInstance.h"
-//#include "BALValue.h"
 #include "DefaultPolicyDelegate.h"
 #include "DOMCoreClasses.h"
 #include "FormValuesPropertyBag.h"
@@ -523,7 +521,7 @@ int WebFrame::numberOfPages(float pageWidthInPixels, float pageHeightInPixels)
     if (!coreFrame)
         return 0;
 
-    return PrintContext::numberOfPages(coreFrame, FloatSize(pageWidthInPixels, pageHeightInPixels));
+    return PrintContext::numberOfPages(*coreFrame, FloatSize(pageWidthInPixels, pageHeightInPixels));
 }
 
 BalPoint WebFrame::scrollOffset()

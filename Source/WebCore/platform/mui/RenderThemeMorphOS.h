@@ -84,7 +84,7 @@ public:
     virtual bool paintSearchFieldCancelButton(const RenderObject&, const PaintInfo&, const IntRect&) override;
 
     virtual void adjustMenuListButtonStyle(StyleResolver&, RenderStyle&, Element*) const override;
-    virtual bool paintMenuListButtonDecorations(const RenderObject&, const PaintInfo&, const FloatRect&) override;
+    virtual bool paintMenuListButtonDecorations(const RenderBox&, const PaintInfo&, const FloatRect&) override;
     virtual void adjustCheckboxStyle(StyleResolver&, RenderStyle&, Element*) const override;
     virtual void adjustRadioStyle(StyleResolver&, RenderStyle&, Element*) const override;
     virtual bool paintMenuList(const RenderObject&, const PaintInfo&, const FloatRect&) override;
@@ -118,7 +118,7 @@ public:
     WTF::String fileListNameForWidth(const Vector<String>&, const WebCore::Font&, int) const;
 
 protected:
-    virtual void updateCachedSystemFontDescription(CSSValueID systemFontID, FontDescription&) const override;
+    virtual void updateCachedSystemFontDescription(CSSValueID systemFontID, FontCascadeDescription&) const override;
 
 private:
     static const String& defaultGUIFont();

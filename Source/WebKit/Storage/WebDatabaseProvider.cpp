@@ -30,7 +30,7 @@
 #if ENABLE(INDEXED_DATABASE)
 #include <WebCore/IDBFactoryBackendInterface.h>
 #endif
-#include <WebCore/SessionID.h>
+#include <WebCore/page/SessionID.h>
 #include <wtf/NeverDestroyed.h>
 
 WebDatabaseProvider& WebDatabaseProvider::singleton()

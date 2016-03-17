@@ -110,13 +110,13 @@ bool FontCascade::canExpandAroundIdeographsInComplexText()
     return false;
 }
 
-float FontCascade::drawComplexText(GraphicsContext* context, const TextRun& run, const FloatPoint& point, int from, int to) const
+float FontCascade::drawComplexText(GraphicsContext& context, const TextRun& run, const FloatPoint& point, int from, int to) const
 {
 #warning "bullshit"
     return drawSimpleText(context, run, point, from,  to);
 }
 
-void FontCascade::drawEmphasisMarksForComplexText(GraphicsContext* /* context */, const TextRun& /* run */, const AtomicString& /* mark */, const FloatPoint& /* point */, int /* fm */, int /* to */) const
+void FontCascade::drawEmphasisMarksForComplexText(GraphicsContext& /* context */, const TextRun& /* run */, const AtomicString& /* mark */, const FloatPoint& /* point */, int /* fm */, int /* to */) const
 {
 #warning "not implemented"
 }

@@ -149,7 +149,7 @@ namespace WebCore
         void setSize(const IntSize&) override;
         virtual bool didLoadingProgress() const override;
 
-        void paint(GraphicsContext*, const FloatRect&) override;
+        void paint(GraphicsContext&, const FloatRect&) override;
         bool hasSingleSecurityOrigin() const override;
         void setOutputPixelFormat(int pixfmt) override;
         bool supportsFullscreen() const override;

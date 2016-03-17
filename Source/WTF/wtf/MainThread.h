@@ -89,6 +89,11 @@ WTF_EXPORT_PRIVATE void callOnMainThread(void (*function)(void*), void* context)
 WTF_EXPORT_PRIVATE void cancelCallOnMainThread(void (*function)(void*), void* context);
 #endif
 
+#if PLATFORM(MUI)
+long long callOnMainThreadReturningJobID(std::function<void()>);
+void removeFromMainThreadByJobID(long long id);
+#endif
+
 } // namespace WTF
 
 #if PLATFORM(MAC) && __MAC_OS_X_VERSION_MIN_REQUIRED == 1090

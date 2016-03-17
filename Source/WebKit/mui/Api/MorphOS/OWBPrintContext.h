@@ -86,7 +86,7 @@ public:
         ctx.translate(static_cast<float>(-pageRect.x()),
                       static_cast<float>(-pageRect.y()));
         ctx.clip(pageRect);
-        m_frame->view()->paintContents(&ctx, pageRect);
+        m_frame->view()->paintContents(ctx, pageRect);
         ctx.restore();
         return scale;
     }

@@ -32,6 +32,8 @@
 #include "InspectorClient.h"
 #include "InspectorFrontendClientLocal.h"
 
+#include <inspector/InspectorFrontendChannel.h>
+
 #include <wtf/HashMap.h>
 #include <wtf/text/CString.h>
 #include <wtf/text/WTFString.h>
@@ -48,7 +50,7 @@ class WebView;
 class WebInspectorFrontendClient;
 class WebInspector;
 
-class WebInspectorClient : public WebCore::InspectorClient, public WebCore::InspectorFrontendChannel {
+class WebInspectorClient : public WebCore::InspectorClient, public Inspector::FrontendChannel {
 public:
     WebInspectorClient(WebView*);
     virtual ~WebInspectorClient();
@@ -56,9 +58,8 @@ public:
  
     void disconnectFrontendClient() { m_frontendClient = 0; }
 
-    virtual void inspectorDestroyed();
-
-    virtual WebCore::InspectorFrontendChannel* openInspectorFrontend(WebCore::InspectorController*);
+    virtual void inspectedPageDestroyed() override;
+    virtual Inspector::FrontendChannel* openLocalFrontend(WebCore::InspectorController*) override;
     virtual void closeInspectorFrontend();
     virtual void bringFrontendToFront();
 
@@ -67,10 +68,7 @@ public:
 
     virtual bool sendMessageToFrontend(const WTF::String& message);
 
-    //bool inspectorStartsAttached();
-    //void setInspectorStartsAttached(bool);
-    //bool inspectorAttachDisabled(); 
-    //void setInspectorAttachDisabled(bool); 
+    virtual ConnectionType connectionType() const override { return ConnectionType::Local; }
 
     void releaseFrontend();
 

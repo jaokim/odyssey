@@ -26,8 +26,10 @@
 #ifndef WebDatabaseProvider_h
 #define WebDatabaseProvider_h
 
-#include <WebCore/DatabaseProvider.h>
+#include <WebCore/page/DatabaseProvider.h>
+#if ENABLE(INDEXED_DATABASE)
 #include <WebCore/InProcessIDBServer.h>
+#endif
 #include <wtf/Forward.h>
 #include <wtf/HashMap.h>
 #include <wtf/RefPtr.h>

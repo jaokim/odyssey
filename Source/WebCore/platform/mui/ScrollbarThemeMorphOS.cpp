@@ -63,10 +63,10 @@ bool ScrollbarThemeBal::m_loaded = false;
   RefPtr<WebCore::Image> ScrollbarThemeBal::bgh = Image::loadPlatformResource("ScrollbarTheme/bgh");          
 
 
-ScrollbarTheme* ScrollbarTheme::nativeTheme()
+ScrollbarTheme& ScrollbarTheme::nativeTheme()
 {
     static ScrollbarThemeBal theme;
-    return &theme;
+    return theme;
 }
 
 ScrollbarThemeBal::~ScrollbarThemeBal()

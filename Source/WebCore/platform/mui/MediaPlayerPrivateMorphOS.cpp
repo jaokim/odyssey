@@ -93,12 +93,6 @@ struct Library *ffmpegSocketBase = NULL; // Not used, but defined in my ffmpeg b
 
 }
 
-/* Custom extensions to allow returning an id for the jobs sent to main task, allowing to cancel them later */
-namespace WTF {
-extern long long callOnMainThreadFab(MainThreadFunction*, void* context);
-extern void removeFromMainThreadFab(long long id);
-}
-
 /********************************************************************************/
 
 /* debug */
@@ -1834,7 +1828,9 @@ static int CALL_CONVT read_callback(void *sender, char *dst, int size)
 			if(shouldSendRequest && !requestSent)
 			{
 				D(kprintf("read_callback(): send new request\n"));
-				WTF::callOnMainThread(MediaPlayerPrivate::fetchRequest, ctx);
+				WTF::callOnMainThread([ctx] {
+				    MediaPlayerPrivate::fetchRequest(ctx);
+				});
 				requestSent = true;
 			}
 
@@ -2511,7 +2507,9 @@ void MediaPlayerPrivate::videoDecoder()
 				D(kprintf("[Video Thread] [%f] Timecode: %f. Decoding took %f. Waiting for frame schedule %f\n", WTF::currentTime(), m_ctx->video->timecode, decodeTime, delay));
 
 				// Painting must be done in main thread context
-				long long jobid = WTF::callOnMainThreadFab(playerPaint, m_ctx);
+				long long jobid = WTF::callOnMainThreadReturningJobID([this] {
+				    playerPaint(m_ctx);
+				});
 
 				// Keep track of pending job so that they can be cancelled later
 				m_lock.lock();
@@ -3004,7 +3002,9 @@ void MediaPlayerPrivate::playerLoop()
 					}
 
 					D(kprintf("[MediaPlayer Thread] Seek, calling callTimeChanged\n"));
-					WTF::callOnMainThread(MediaPlayerPrivate::callTimeChanged, m_player);
+					WTF::callOnMainThread([this] {
+					    MediaPlayerPrivate::callTimeChanged(m_player);
+					});
 					
 					m_isSeeking = false;
 
@@ -3325,7 +3325,7 @@ MediaPlayerPrivate::~MediaPlayerPrivate()
 	for (Vector<long long>::const_iterator it = m_pendingPaintQueue.begin(); it != end; ++it)
 	{
 		 D(kprintf("."));
-		 WTF::removeFromMainThreadFab(*it);
+		 WTF::removeFromMainThreadByJobID(*it);
 	}
 	D(kprintf("\n"));
 
@@ -3643,13 +3643,17 @@ void MediaPlayerPrivate::updateStates(MediaPlayer::NetworkState networkState, Me
 		if(networkState != m_networkState)
 		{
 			m_networkState = networkState;
-			WTF::callOnMainThread(MediaPlayerPrivate::callNetworkStateChanged, m_player);
+			WTF::callOnMainThread([this] {
+			    MediaPlayerPrivate::callNetworkStateChanged(m_player);
+			});
 		}
 
 		if(readyState != m_readyState)
 		{
 			m_readyState = readyState;
-			WTF::callOnMainThread(MediaPlayerPrivate::callReadyStateChanged, m_player);
+			WTF::callOnMainThread([this] {
+			    MediaPlayerPrivate::callReadyStateChanged(m_player);
+			});
 		}
 	}
 }
@@ -3661,7 +3665,9 @@ void MediaPlayerPrivate::didEnd()
 
 	updateStates(m_networkState, MediaPlayer::HaveEnoughData);
 
-	WTF::callOnMainThread(MediaPlayerPrivate::callTimeChanged, m_player);
+	WTF::callOnMainThread([this] {
+	    MediaPlayerPrivate::callTimeChanged(m_player);
+	});
 }
 
 void MediaPlayerPrivate::setSize(const IntSize& size)
@@ -3687,9 +3693,9 @@ void MediaPlayerPrivate::repaint()
 	}
 }
 
-void MediaPlayerPrivate::paint(GraphicsContext* context, const FloatRect& rect)
+void MediaPlayerPrivate::paint(GraphicsContext& context, const FloatRect& rect)
 {
-    if (context->paintingDisabled())
+    if (context.paintingDisabled())
         return;
 
     if (!m_visible)
@@ -3723,7 +3729,7 @@ void MediaPlayerPrivate::paint(GraphicsContext* context, const FloatRect& rect)
 
 	if(canDisplayFrame)
 	{
-		cairo_t* cr = context->platformContext()->cr();
+		cairo_t* cr = context.platformContext()->cr();
 	    int width = m_ctx->width, height = m_ctx->height;
 		int stride = 0;
 	    double doublePixelAspectRatioNumerator = 0;
@@ -3836,7 +3842,7 @@ void MediaPlayerPrivate::paint(GraphicsContext* context, const FloatRect& rect)
 	}
 	else
 	{
-		cairo_t* cr = context->platformContext()->cr();
+		cairo_t* cr = context.platformContext()->cr();
 
 		cairo_save(cr);
 		cairo_set_source_rgb(cr, 0, 0, 0);

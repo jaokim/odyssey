@@ -91,7 +91,6 @@
 #include <proto/bsdsocket.h>
 #endif
 #include <proto/exec.h>
-#include <proto/dos.h>
 #include "gui.h"
 #include "utils.h"
 #undef String

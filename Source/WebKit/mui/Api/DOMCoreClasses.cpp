@@ -39,6 +39,7 @@
 #include <Document.h>
 #include <Element.h>
 #include <Font.h>
+#include <HTMLCollection.h>
 #include <HTMLFormElement.h>
 #include <HTMLInputElement.h>
 #include <HTMLNames.h>
@@ -396,7 +397,8 @@ DOMNodeList* DOMDocument::getElementsByTagName(const char* tagName)
     if (!m_document)
         return 0;
 
-    return DOMNodeList::createInstance(m_document->getElementsByTagName(tagName).get());
+    RefPtr<WebCore::NodeList> elements = m_document->getElementsByTagName(tagName);
+    return DOMNodeList::createInstance(elements.get());
 }
 
 DOMNode* DOMDocument::importNode(DOMNode* /*importedNode*/, bool /*deep*/)
@@ -419,7 +421,8 @@ DOMNodeList* DOMDocument::getElementsByTagNameNS(const char* namespaceURI, const
     if (!m_document)
         return 0;
 
-    return  DOMNodeList::createInstance(m_document->getElementsByTagNameNS(namespaceURI, localName).get());
+    RefPtr<WebCore::NodeList> elements = m_document->getElementsByTagNameNS(namespaceURI, localName);
+    return  DOMNodeList::createInstance(elements.get());
 }
 
 DOMElement* DOMDocument::getElementById(const char* elementId)
@@ -649,7 +652,7 @@ WebFontDescription* DOMElement::font()
     if (!renderer)
         return 0;
 
-    FontDescription fontDescription = renderer->style().fontCascade().fontDescription();
+    FontCascadeDescription fontDescription = renderer->style().fontCascade().fontDescription();
     AtomicString family = fontDescription.firstFamily();
     
     WebFontDescription *webFontDescription = new WebFontDescription();

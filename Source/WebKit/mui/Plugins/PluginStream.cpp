@@ -479,4 +479,9 @@ bool PluginStream::wantsAllStreams() const
     return result != 0;
 }
 
+void PluginStream::willSendRequest(NetscapePlugInStreamLoader*, ResourceRequest&& request, const ResourceResponse&, std::function<void (WebCore::ResourceRequest&&)>&& callback)
+{
+    // TODO: Implement
+}
+
 }

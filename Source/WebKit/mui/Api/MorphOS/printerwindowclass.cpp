@@ -35,11 +35,12 @@
 #include <Api/WebFrame.h>
 #include <Api/WebView.h>
 
-#include <proto/dos.h>
 #include <cairo/cairo-ps.h>
 
 #include "OWBPrintContext.h"
 #include "gui.h"
+
+#include <proto/dos.h>
 
 #define D(x)
 #define USE_THREAD 0
