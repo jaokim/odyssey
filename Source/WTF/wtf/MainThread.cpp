@@ -52,7 +52,18 @@ struct Invocation {
         , id(++g_functionid)
     {
     }
+//    bool operator == (const Invocation& o)
+//    {
+//        return function == o.function;
+//    }
 };
+//
+//class FunctionWithContextFinder {
+//public:
+//    FunctionWithContextFinder(const FunctionWithContext& m) : m(m) {}
+//    bool operator() (FunctionWithContext& o) { return o == m; }
+//    FunctionWithContext m;
+//};
 #endif
 
 static bool callbacksPaused; // This global variable is only accessed from main thread.
@@ -243,6 +254,23 @@ void removeFromMainThreadByJobID(long long id)
 }
 #endif
 
+//void cancelCallOnMainThread(MainThreadFunction* function, void* context)
+//{
+//    ASSERT(function);
+//
+//    std::lock_guard<std::mutex> lock(mainThreadFunctionQueueMutex());
+//
+//    FunctionWithContextFinder pred(FunctionWithContext(function, context));
+//
+//    while (true) {
+//        // We must redefine 'i' each pass, because the itererator's operator=
+//        // requires 'this' to be valid, and remove() invalidates all iterators
+//        FunctionQueue::iterator i(functionQueue().findIf(pred));
+//        if (i == functionQueue().end())
+//            break;
+//        functionQueue().remove(i);
+//    }
+//}
 
 void setMainThreadCallbacksPaused(bool paused)
 {

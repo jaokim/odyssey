@@ -3301,9 +3301,9 @@ MediaPlayerPrivate::~MediaPlayerPrivate()
 {
 	D(kprintf("[MediaPlayer] ~MediaPlayerPrivate()\n"));
 
-	WTF::cancelCallOnMainThread(MediaPlayerPrivate::callNetworkStateChanged, m_player);
-	WTF::cancelCallOnMainThread(MediaPlayerPrivate::callReadyStateChanged, m_player);
-	WTF::cancelCallOnMainThread(MediaPlayerPrivate::callTimeChanged, m_player);
+//	WTF::cancelCallOnMainThread(MediaPlayerPrivate::callNetworkStateChanged, m_player);
+//	WTF::cancelCallOnMainThread(MediaPlayerPrivate::callReadyStateChanged, m_player);
+//	WTF::cancelCallOnMainThread(MediaPlayerPrivate::callTimeChanged, m_player);
 
 	m_player = 0; // Any further reference to m_player might result in a crash since a few webkit versions
 

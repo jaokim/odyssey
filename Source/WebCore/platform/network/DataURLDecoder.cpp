@@ -32,17 +32,17 @@
 #include "URL.h"
 #include <wtf/MainThread.h>
 #include <wtf/RunLoop.h>
-#include <wtf/WorkQueue.h>
+//#include <wtf/WorkQueue.h>
 #include <wtf/text/Base64.h>
 
 namespace WebCore {
 namespace DataURLDecoder {
 
-static WorkQueue& decodeQueue()
-{
-    static auto& queue = WorkQueue::create("org.webkit.DataURLDecoder").leakRef();
-    return queue;
-}
+//static WorkQueue& decodeQueue()
+//{
+//    static auto& queue = WorkQueue::create("org.webkit.DataURLDecoder").leakRef();
+//    return queue;
+//}
 
 struct DecodeTask {
     const String urlString;
@@ -125,23 +125,23 @@ void decode(const URL& url, DecodeCompletionHandler completionHandler)
     auto decodeTask = createDecodeTask(url, WTF::move(completionHandler));
 
     auto* decodeTaskPtr = decodeTask.release();
-    decodeQueue().dispatch([decodeTaskPtr] {
-        auto& decodeTask = *decodeTaskPtr;
-
-        if (decodeTask.isBase64)
-            decodeBase64(decodeTask);
-        else
-            decodeEscaped(decodeTask);
-
-        callOnMainThread([decodeTaskPtr] {
-            std::unique_ptr<DecodeTask> decodeTask(decodeTaskPtr);
-            if (!decodeTask->result.data) {
-                decodeTask->completionHandler({ });
-                return;
-            }
-            decodeTask->completionHandler(WTF::move(decodeTask->result));
-        });
-    });
+//    decodeQueue().dispatch([decodeTaskPtr] {
+//        auto& decodeTask = *decodeTaskPtr;
+//
+//        if (decodeTask.isBase64)
+//            decodeBase64(decodeTask);
+//        else
+//            decodeEscaped(decodeTask);
+//
+//        callOnMainThread([decodeTaskPtr] {
+//            std::unique_ptr<DecodeTask> decodeTask(decodeTaskPtr);
+//            if (!decodeTask->result.data) {
+//                decodeTask->completionHandler({ });
+//                return;
+//            }
+//            decodeTask->completionHandler(WTF::move(decodeTask->result));
+//        });
+//    });
 }
 
 }

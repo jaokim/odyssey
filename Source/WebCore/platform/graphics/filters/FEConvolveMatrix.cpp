@@ -29,7 +29,7 @@
 
 #include <runtime/Uint8ClampedArray.h>
 #include <wtf/ParallelJobs.h>
-#include <wtf/WorkQueue.h>
+//#include <wtf/WorkQueue.h>
 
 namespace WebCore {
 
@@ -451,12 +451,12 @@ void FEConvolveMatrix::platformApplySoftware()
         int stride = clipBottom / iterations;
         int chunkCount = (clipBottom + stride - 1) / stride;
 
-        WorkQueue::concurrentApply(chunkCount, [&](size_t index) {
-            int yStart = (stride * index);
-            int yEnd = std::min<int>(stride * (index + 1), clipBottom);
-
-            setInteriorPixels(paintingData, clipRight, clipBottom, yStart, yEnd);
-        });
+//        WorkQueue::concurrentApply(chunkCount, [&](size_t index) {
+//            int yStart = (stride * index);
+//            int yEnd = std::min<int>(stride * (index + 1), clipBottom);
+//
+//            setInteriorPixels(paintingData, clipRight, clipBottom, yStart, yEnd);
+//        });
     } else
         setInteriorPixels(paintingData, clipRight, clipBottom, 0, clipBottom);
 

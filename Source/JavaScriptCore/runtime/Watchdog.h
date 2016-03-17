@@ -29,7 +29,7 @@
 #include <wtf/Lock.h>
 #include <wtf/Ref.h>
 #include <wtf/ThreadSafeRefCounted.h>
-#include <wtf/WorkQueue.h>
+//#include <wtf/WorkQueue.h>
 
 namespace JSC {
 
@@ -90,7 +90,7 @@ private:
     void* m_callbackData1;
     void* m_callbackData2;
 
-    Ref<WorkQueue> m_timerQueue;
+//    Ref<WorkQueue> m_timerQueue;
     std::function<void ()> m_timerHandler;
 
     friend class LLIntOffsetsExtractor;
