@@ -45,7 +45,7 @@
 #include <wtf/Noncopyable.h>
 #include <wtf/StdLibExtras.h>
 
-#if USE(PTHREADS) || PLATFORM(MUI)
+#if USE(PTHREADS)
 #include <pthread.h>
 #elif OS(WINDOWS)
 #include <windows.h>
@@ -99,14 +99,14 @@ public:
 #endif
     };
 
-#if USE(PTHREADS) || PLATFORM(MUI)
+#if USE(PTHREADS)
     pthread_key_t m_key;
 #elif OS(WINDOWS)
     int m_index;
 #endif
 };
 
-#if USE(PTHREADS) || PLATFORM(MUI)
+#if USE(PTHREADS)
 
 typedef pthread_key_t ThreadSpecificKey;
 
@@ -220,7 +220,7 @@ inline void ThreadSpecific<T>::destroy(void* ptr)
 {
     Data* data = static_cast<Data*>(ptr);
 
-#if USE(PTHREADS) || PLATFORM(MUI)
+#if USE(PTHREADS)
     // We want get() to keep working while data destructor works, because it can be called indirectly by the destructor.
     // Some pthreads implementations zero out the pointer before calling destroy(), so we temporarily reset it.
     pthread_setspecific(data->owner->m_key, ptr);
@@ -229,7 +229,7 @@ inline void ThreadSpecific<T>::destroy(void* ptr)
     data->value->~T();
     fastFree(data->value);
 
-#if USE(PTHREADS) || PLATFORM(MUI)
+#if USE(PTHREADS)
     pthread_setspecific(data->owner->m_key, 0);
 #elif OS(WINDOWS)
     TlsSetValue(tlsKeys()[data->owner->m_index], 0);
