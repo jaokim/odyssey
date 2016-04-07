@@ -4,8 +4,8 @@ SET(CMAKE_SYSTEM_NAME Generic)
 SET(CMAKE_SYSTEM_VERSION 1)
 
 # specify the cross compiler
-SET(CMAKE_C_COMPILER ppc-amigaos-gcc)
-SET(CMAKE_CXX_COMPILER ppc-amigaos-g++)
+SET(CMAKE_C_COMPILER /usr/local/amiga-5.3/bin/ppc-amigaos-gcc)
+SET(CMAKE_CXX_COMPILER /usr/local/amiga-5.3/bin/ppc-amigaos-g++)
 
 # options
 SET(CMAKE_CXX_FLAGS "-D__USE_INLINE__")

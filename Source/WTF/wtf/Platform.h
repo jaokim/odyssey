@@ -437,16 +437,16 @@
 
 // enable chrono for c++11, as currently newlib didn't have it
 #define _GLIBCXX_USE_C99_STDINT_TR1 1
-
+typedef unsigned int size_t;
 // missing func from newlib
 #ifdef __cplusplus
 extern "C" {
 #endif
 int strcasecmp (const char * str1, const char * str2); 
+int strncasecmp (const char * str1, const char * str2, size_t n);
 #ifdef __cplusplus
 }
 #endif
-
 
 #endif
 
@@ -532,6 +532,8 @@ int strcasecmp (const char * str1, const char * str2);
 #endif
 
 #if PLATFORM(MUI)
+#define _GLIBCXX__PTHREADS 1
+#define _GLIBCXX_HAS_GTHREADS 1
 #define USE_CAIRO 1
 #define USE_FREETYPE 1
 #define USE_CURL 1
