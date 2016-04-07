@@ -44,7 +44,7 @@
 #include "CommonCryptoSPI.h"
 #endif
 
-#if OS(MORPHOS)
+#if OS(MORPHOS) || OS(AMIGAOS4)
 #include <stdio.h>
 #endif  
 
@@ -96,7 +96,7 @@ void cryptographicallyRandomValuesFromOS(unsigned char* buffer, size_t length)
     UNUSED_PARAM(buffer);
     UNUSED_PARAM(length);
     return;
-#elif OS(MORPHOS)
+#elif OS(MORPHOS) || OS(AMIGAOS4)
     FILE *fd = fopen("RANDOM:", "r");
     if(fd)
       {
