@@ -72,6 +72,13 @@ inline size_t systemPageSize()
     return 4096;
 }
 
+#elif OS(AMIGAOS4)
+// TODO: aos4 has this function somewhere, right?
+inline size_t systemPageSize()
+{
+        return 4096;
+}
+
 #endif
 
 size_t pageSize()
