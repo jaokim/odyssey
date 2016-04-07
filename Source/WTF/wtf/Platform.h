@@ -434,10 +434,12 @@
 
 #if defined(__AMIGAOS4__)
 #define WTF_OS_AMIGAOS4 1
+#define HAVE_STRINGS_H 1
 
 // enable chrono for c++11, as currently newlib didn't have it
 #define _GLIBCXX_USE_C99_STDINT_TR1 1
 typedef unsigned int size_t;
+#undef __STRICT_ANSI__
 // missing func from newlib
 #ifdef __cplusplus
 extern "C" {
