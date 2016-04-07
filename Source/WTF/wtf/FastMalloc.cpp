@@ -35,7 +35,7 @@
 
 #if OS(WINDOWS)
 #include <windows.h>
-#elif OS(AROS)
+#elif OS(AROS) || OS(AMIGAOS4)
 #else
 #include <pthread.h>
 #include <sys/resource.h>
@@ -79,7 +79,7 @@ TryMallocReturnValue tryFastZeroedMalloc(size_t n)
 
 #if OS(WINDOWS)
 #include <malloc.h>
-#elif OS(AROS)
+#elif OS(AROS) || OS(AMIGAOS4)
 #include "mui/arosbailout.h"
 #include "mui/execallocator.h"
 #elif OS(MORPHOS)
@@ -115,7 +115,7 @@ void* fastAlignedMalloc(size_t alignment, size_t size)
 {
 retry:
     void* p = nullptr;
-#if OS(AROS)
+#if OS(AROS) || OS(AMIGAOS4)
     p = allocator_getmem_aligned(size, alignment);
 #else
     posix_memalign(&p, alignment, size ? size : 2);
