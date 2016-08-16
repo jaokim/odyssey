@@ -28,8 +28,10 @@
 
 #include <exec/lists.h>
 #include <string.h>
-#include <aros/debug.h>
 
+#if OS(AROS)
+#include <aros/debug.h>
+#endif
 #if OS(AROS)
 
 #include "mui/execallocator.h"

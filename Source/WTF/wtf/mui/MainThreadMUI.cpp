@@ -32,6 +32,7 @@
 #include <clib/debug_protos.h>
 
 #define D(x)
+#define bug(x)
 
 #if PLATFORM(MUI)
 extern "C"

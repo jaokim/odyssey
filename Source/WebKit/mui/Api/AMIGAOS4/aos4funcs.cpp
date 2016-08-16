@@ -88,6 +88,17 @@ int strcasecmp (const char * str1, const char * str2)
 }
 
 
+
+#define ForeachNode(l,n) \
+    for (n=(void *)(((struct List *)(l))->lh_Head); \
+	((struct Node *)(n))->ln_Succ; \
+	n=(void *)(((struct Node *)(n))->ln_Succ))
+
+#define ForeachNodeSafe(l,n,n2) \
+    for (n=(void *)(((struct List *)(l))->lh_Head); \
+	    (n2=(void *)((struct Node *)(n))->ln_Succ); \
+	    n=(void *)n2)
+
 #endif
 
 

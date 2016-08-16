@@ -125,6 +125,14 @@ void StackBounds::initialize()
     m_bound =  FindTask(NULL)->tc_SPLower;
 }
 
+#elif OS(AMIGAOS4)
+// TODO: guess this should be replaced with OS4 stuff
+void StackBounds::initialize()
+{
+    m_origin = FindTask(NULL)->tc_SPUpper;
+    m_bound =  FindTask(NULL)->tc_SPLower;
+}
+
 
 #elif OS(UNIX)
 

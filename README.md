@@ -8,3 +8,5 @@ odyssey - branch that contains Odyssey Web Browser rebased onto certain version 
 
 In order to build/develop the Odyssey Web Browser, checkout branch odyssey.
 
+This branch is abased on kas1e branch. Branched by jaokim, 2016-05-19.
+

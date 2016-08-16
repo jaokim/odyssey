@@ -79,7 +79,7 @@ TryMallocReturnValue tryFastZeroedMalloc(size_t n)
 
 #if OS(WINDOWS)
 #include <malloc.h>
-#elif OS(AROS) || OS(AMIGAOS4)
+#elif OS(AROS)|| OS(AMIGAOS4)
 #include "mui/arosbailout.h"
 #include "mui/execallocator.h"
 #elif OS(MORPHOS)
@@ -130,6 +130,11 @@ retry:
         if (aros_is_memory_bailout())
             aros_bailout_jump();
 #endif
+#if OS(AMIGAOS)
+        kprintf("fastAlignedMalloc: Failed to allocate %lu bytes. Happy crash sponsored by WebKit will follow.\n", n ? n : 2);
+        if(amigaos_crash(size ? size : 2))
+            goto retry;
+#endif
 #if OS(MORPHOS)
         kprintf("fastAlignedMalloc: Failed to allocate %lu bytes. Happy crash sponsored by WebKit will follow.\n", n ? n : 2);
         if(morphos_crash(size ? size : 2))
@@ -141,7 +146,7 @@ retry:
 
 void fastAlignedFree(void* p) 
 {
-#if OS(AROS)
+#if OS(AROS) || OS(AMIGAOS4)
     allocator_freemem(p);
 #else
     free(p);
@@ -167,6 +172,11 @@ retry:
 
         if (aros_is_memory_bailout())
             aros_bailout_jump();
+#endif
+#if OS(AMIGAOS)
+        kprintf("fastAlignedMalloc: Failed to allocate %lu bytes. Happy crash sponsored by WebKit will follow.\n", n ? n : 2);
+        if(amigaos_crash(size ? size : 2))
+            goto retry;
 #endif
 #if OS(MORPHOS)
         kprintf("fastMalloc: Failed to allocate %lu bytes. Happy crash sponsored by WebKit will follow.\n", n ? n : 2);
@@ -196,6 +206,11 @@ retry:
         if (aros_is_memory_bailout())
             aros_bailout_jump();
 #endif
+#if OS(AMIGAOS)
+        kprintf("fastAlignedMalloc: Failed to allocate %lu bytes. Happy crash sponsored by WebKit will follow.\n", n ? n : 2);
+        if(amigaos_crash(size ? size : 2))
+            goto retry;
+#endif
 #if OS(MORPHOS)
         kprintf("fastCalloc: Failed to allocate %lu x %lu bytes. Happy crash sponsored by WebKit will follow.\n", n_elements ? n_elements : 1, element_size ? element_size : 2);
         if(morphos_crash((n_elements ? n_elements : 1)*(element_size ? element_size : 2))) 
@@ -223,6 +238,11 @@ retry:
 
         if (aros_is_memory_bailout())
             aros_bailout_jump();
+#endif
+#if OS(AMIGAOS)
+        kprintf("fastAlignedMalloc: Failed to allocate %lu bytes. Happy crash sponsored by WebKit will follow.\n", n ? n : 2);
+        if(amigaos_crash(size ? size : 2))
+            goto retry;
 #endif
 #if OS(MORPHOS)
         kprintf("fastRealloc: Failed to allocate %lu bytes. Happy crash sponsored by WebKit will follow.\n", n ? n : 2);

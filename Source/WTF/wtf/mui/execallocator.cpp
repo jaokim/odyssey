@@ -24,8 +24,40 @@
  */
 
 #include "execallocator.h"
-#include "arosbailout.h"
 
+#ifdef __amigaos4__
+#include <proto/exec.h>
+
+void * allocator_getmem_page_aligned(size_t bytes)
+{
+    void * ptr = AllocVecTags(bytes, 
+            AVT_Type, MEMF_PRIVATE,
+            AVT_ClearWithValue, 0,
+            TAG_END);
+    return ptr;
+}
+
+void * allocator_getmem_aligned(size_t bytes, size_t alignment)
+{
+    void * ptr = AllocVecTags(bytes, 
+            AVT_Type, MEMF_PRIVATE,
+            AVT_Alignment, alignment,
+            AVT_ClearWithValue, 0,
+            TAG_END);
+    return ptr;
+}
+
+void allocator_freemem(void * address, size_t bytes)
+{
+    FreeVec(address);
+}
+
+void allocator_freemem(void * address)
+{
+    FreeVec(address);
+}
+#else
+#include "arosbailout.h"
 #include <proto/alib.h>
 #include <exec/lists.h>
 #include <aros/debug.h>
@@ -107,7 +139,6 @@ void PageAllocator::reportBlockUsage()
 
 /* This function exposes internals of AROS and should be moved to exec.library */
 #include <exec/memheaderext.h>
-
 static APTR AllocMemAligned(IPTR byteSize, ULONG attributes, IPTR alignSize, IPTR alignOffset)
 {
     APTR res = NULL;
@@ -473,3 +504,5 @@ void allocator_freemem(void * address)
     allocator.freePages(address);
 
 }
+
+#endif
